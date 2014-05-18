@@ -86,7 +86,12 @@ module RestPack::Serializer::SideLoading
     def side_load_has_many(association, models, serializer)
       return {} if models.empty?
       options = RestPack::Serializer::Options.new(serializer.class)
-      options.filters = { association.foreign_key.to_sym => models.map(&:id) }
+      if association.options[:through]
+        through_association = association_from_include(association.options[:through])
+        options.filters = { :id => through_association.klass.select(association.foreign_key.to_sym).where(through_association.foreign_key.to_sym => models.map(&:id)) }
+      else
+        options.filters = { association.foreign_key.to_sym => models.map(&:id) }
+      end
       options.include_links = false
       return serializer.class.page_with_options(options)
     end
