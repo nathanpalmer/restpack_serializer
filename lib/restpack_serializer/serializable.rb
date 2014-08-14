@@ -101,7 +101,9 @@ module RestPack
       end
 
       def key
-        (@key || self.model_class.send(:table_name)).to_sym
+        (@key || self.model_class.respond_to?(:table_name)      ? self.model_class.send(:table_name) :
+                 self.model_class.respond_to?(:collection_name) ? self.model_class.send(:collection_name) :
+                 nil).to_sym
       end
 
     end

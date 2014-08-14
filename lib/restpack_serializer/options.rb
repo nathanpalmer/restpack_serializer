@@ -28,7 +28,11 @@ module RestPack::Serializer
         if value.is_a?(String)
           value = value.split(',')
         end
-        scope_filter[filter] = value
+        if @scope.is_a?(Mongoid::Criteria)
+          scope_filter[filter.all] = value
+        else
+          scope_filter[filter] = value
+        end
       end
 
       @scope.where(scope_filter)
